@@ -1,5 +1,5 @@
 ## Youtube downloader web app with Streamlit 
-it's a web app developed py python to downlode videos from youtube 
+it's a web app developed by python to download videos from youtube
 
 ## Requirements
 - Streamlit.
