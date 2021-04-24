@@ -1,5 +1,3 @@
-import tkinter as tk
-from pytube import YouTube
 import streamlit as st
 import youtube_dl
 
