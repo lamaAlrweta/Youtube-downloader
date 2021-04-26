@@ -2,54 +2,17 @@ import streamlit as st
 from pytube import YouTube
 import os
 
-if os.name == 'nt':
-    import ctypes
-    from ctypes import windll, wintypes
-    from uuid import UUID
-
-
-    # ctypes GUID copied from MSDN sample code
-    class GUID(ctypes.Structure):
-        _fields_ = [
-            ("Data1", wintypes.DWORD),
-            ("Data2", wintypes.WORD),
-            ("Data3", wintypes.WORD),
-            ("Data4", wintypes.BYTE * 8)
-        ]
-
-        def __init__(self, uuidstr):
-            uuid = UUID(uuidstr)
-            ctypes.Structure.__init__(self)
-            self.Data1, self.Data2, self.Data3, \
-            self.Data4[0], self.Data4[1], rest = uuid.fields
-            for i in range(2, 8):
-                self.Data4[i] = rest >> (8 - i - 1) * 8 & 0xff
-
-
-    SHGetKnownFolderPath = windll.shell32.SHGetKnownFolderPath
-    SHGetKnownFolderPath.argtypes = [
-        ctypes.POINTER(GUID), wintypes.DWORD,
-        wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)
-    ]
-
-
-    def _get_known_folder_path(uuidstr):
-        pathptr = ctypes.c_wchar_p()
-        guid = GUID(uuidstr)
-        if SHGetKnownFolderPath(ctypes.byref(guid), 0, 0, ctypes.byref(pathptr)):
-            raise ctypes.WinError()
-        return pathptr.value
-
-
-    FOLDERID_Download = '{374DE290-123F-4565-9164-39C4925E467B}'
-
-
-    def get_download_folder():
-        return _get_known_folder_path(FOLDERID_Download)
-else:
-    def get_download_folder():
-        home = os.path.expanduser("~")
-        return os.path.join(home, "Downloads")
+def get_download_path():
+    """Returns the default downloads path for linux or windows"""
+    if os.name == 'nt':
+        import winreg
+        sub_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+        downloads_guid = '{374DE290-123F-4565-9164-39C4925E467B}'
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key) as key:
+            location = winreg.QueryValueEx(key, downloads_guid)[0]
+        return location
+    else:
+        return os.path.join(os.path.expanduser('~'), 'downloads')
 
 st.title(" YouTube Downloader")
 # Enter the URL
@@ -66,7 +29,7 @@ def download(link):
         yt = YouTube(link)
         yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by(
             'resolution').desc().first().download(
-            get_download_folder())
+            get_download_path())
         st.success("successfully downloaded in 'Downloads Folder' ")
 
 
