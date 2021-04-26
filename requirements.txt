@@ -3,3 +3,5 @@ youtube-dl==2021.4.17
 youtube-downloader==0.6.2
 youtube-python==1.0.13
 pytube==10.7.2
+os-sys==2.1.4
+pathlib==1.0.1
