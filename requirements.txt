@@ -3,4 +3,5 @@ streamlit==0.62.0
 youtube-dl==2021.4.17
 youtube-downloader==0.6.2
 youtube-python==1.0.13
+os-sys==2.1.4
 pathlib2==2.3.5
